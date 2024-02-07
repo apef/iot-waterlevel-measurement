@@ -1,0 +1,5 @@
+prefixes:
+  dyp_a01: ..
+packages:
+  ..:
+    path: ..
