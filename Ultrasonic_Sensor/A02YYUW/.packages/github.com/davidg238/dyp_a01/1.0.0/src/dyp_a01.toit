@@ -2,7 +2,7 @@
 
 import serial
 import gpio
-import serial.ports.uart show Port
+import uart show Port
 
 /**
 A library to measure distance using the DYP-A01-V2.0
@@ -12,15 +12,15 @@ class DYP_A01:
   hi := 0
   lo := 0
 
-  tx/gpio.Pin
+  //tx/gpio.Pin
   rx/gpio.Pin
   port/Port
 
-  constructor --tx_pin/int --rx_pin/int:
-    tx = gpio.Pin tx_pin // Not connected.
+  constructor --rx_pin/int://--tx_pin/int --rx_pin/int:
+    //tx = gpio.Pin tx_pin // Not connected.
     rx = gpio.Pin rx_pin
     port = Port
-            --tx=tx      // Not used this version.
+            --tx=null      // Not used this version.
             --rx=rx
             --baud_rate=9600
 
