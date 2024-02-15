@@ -10,15 +10,19 @@ import reader show BufferedReader
 //     task:: readLora loraModule
 
 main:
+  // LoRa OTTA configuration variables for end device
+  device_eui := ""
+  app_eui := ""
+  app_key := ""
+  ul_dl_mode := ""
+
   tx := gpio.Pin 1
   rx := gpio.Pin 3  // Labeled as TX on the sensor.
   loraModule := uart.Port --rx=rx --baud-rate=115200 --tx=null
 
   print "Prior to function"
   task:: readLora loraModule
-  // while true:
-  //   data := port.read
-  //   print "received: $data"
+  task:: writeLora loraModule "TestPing" true
 
 readLora loraModule:
   print "LoraModule started."
@@ -33,12 +37,26 @@ readLora loraModule:
           loraData := sData.to_string
           print "->$loraData"
 
-writeLora loraModule textString:
+writeLora loraModule textString inf_loop:
+  writer := Writer loraModule
   print "Writing $(textString) to LoRa Module.."
   isDone := false
   task::
 
       while not isDone:
+        writer.write textString
+        sleep --ms=500
 
-        isDone = true
-        
+        if inf_loop == false:
+          isDone = true
+  
+M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode:
+  print "Initializing LoRa Module.."
+  writer := Writer loraModule
+
+  writer.write "AT+CJOINMODE=0\r\n"
+  writer.write "AT+CDEVEUI=" + device-eui + "\r\n"
+  writer.write "AT+CAPPEUI=" + app_eui + "\r\n"
+  writer.write "AT+CAPPKEY=" + app_key + "\r\n"
+  writer.write "AT+CULDLMODE=" + ul_dl_mode + "\r\n"
+  
