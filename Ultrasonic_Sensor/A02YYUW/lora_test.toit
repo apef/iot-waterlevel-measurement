@@ -12,17 +12,28 @@ import reader show BufferedReader
 main:
   // LoRa OTTA configuration variables for end device
   device_eui := ""
-  app_eui := ""
+  app_eui := "0000000000000000"
   app_key := ""
   ul_dl_mode := ""
+  join_eui := "0000000000000000"
 
   tx := gpio.Pin 1
   rx := gpio.Pin 3  // Labeled as TX on the sensor.
   loraModule := uart.Port --rx=rx --baud-rate=115200 --tx=null
 
+  M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode
+  
+  isconnected := false
+  while isconnected false:
+   isconnected = m5LoRa_checkConnection loraModule
+   if not isconnected:
+    print "Retrying connection..."
+    sleep --ms=1000
+
+
   print "Prior to function"
   task:: readLora loraModule
-  task:: writeLora loraModule "TestPing" true
+  // task:: writeLora loraModule "TestPing" true
 
 readLora loraModule:
   print "LoraModule started."
@@ -51,7 +62,7 @@ writeLora loraModule textString inf_loop:
           isDone = true
   
 M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode:
-  print "Initializing LoRa Module.."
+  print "Configurating LoRa Module OTTA.."
   writer := Writer loraModule
 
   writer.write "AT+CJOINMODE=0\r\n"
@@ -59,4 +70,67 @@ M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode:
   writer.write "AT+CAPPEUI=" + app_eui + "\r\n"
   writer.write "AT+CAPPKEY=" + app_key + "\r\n"
   writer.write "AT+CULDLMODE=" + ul_dl_mode + "\r\n"
+  print "LoRa Module OTTA set."
   
+m5LoRa_checkConnection loraModule -> boolean:
+  isconnected := false
+  print "Checking LoRa connection.."
+  writer := Write loraModule
+  timeVal := 10
+  writer.write "AT+CGMI?\r\n"
+
+  sData := LoRaWaitMSG
+  // task::
+  //   sData := loraModule.read
+  
+  // task::
+  //   while timeVal > 0:
+  //     sleep --ms=1000
+  //     timeVal = timeVal - 1
+
+  // while sData == null or timeVal > 0:
+  //   pass
+  
+  if sData == null:
+    print "Connection was not established"
+  
+  if sData != null:
+    print "Connection was established"
+    isconnected = true
+
+  return isconnected
+
+m5LoRa_checkJoinStatus loraModule:
+  responseStr := ""
+
+  writer := Write loraModule
+  writer.write "AT+CSTATUS?\r\n"
+
+  sData := task::LoRaWaitMSG
+  
+  
+  if sData == null:
+    print "Connection was not established"
+  
+  
+LoRaWaitMSG loraModule:
+  timeVal := 10
+  task::
+    sData := loraModule.read
+  
+  task::
+    while timeVal > 0:
+      sleep --ms=1000
+      timeVal = timeVal - 1
+
+  while sData == null or timeVal > 0:
+    pass
+  
+  if sData == null:
+    print "Retries exceeded, no data was recieved."
+  
+  return sData
+
+  
+    // Wait
+      
