@@ -18,6 +18,10 @@ This project uses a Wireless Stick Lite V3 from Heltec, which has BLE/WiFi/LoRa 
 * Distance measuring: A02YYUW - Waterproof ultrasonic sensor
 * Battery level measuring: MAX17048 Fuel cell Gauge
 
+### Wiring diagram
+<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_schem.png?raw=true" width="500">
+<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_bb.png?raw=true" width="600">
+
 ## Software
 ### TOIT Framework
 The TOIT framework allows for remote flashing an ESP32 device, this means that the device that will be installed inside of stormdrains do not have to be removed from its location in order to update it via a serial connection.
@@ -27,5 +31,3 @@ The TOIT framework allows for remote flashing an ESP32 device, this means that t
 1. Install TOIT by downloading it from https://toitlang.org/
 2. Connect the Microcontroller via USB and enter the command "jag flash" in your terminal/commandline
 3. Insert the name of your WiFi-network and the password. The device will then be connected to WiFi and you can then upload TOIT applications wirelessly.
-
-
