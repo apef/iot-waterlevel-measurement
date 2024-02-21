@@ -1,4 +1,7 @@
 dependencies:
+  dhtxx:
+    url: github.com/toitware/toit-dhtxx
+    version: ^1.4.0
   dyp_a01:
     url: github.com/davidg238/dyp_a01
     version: ^1.0.0

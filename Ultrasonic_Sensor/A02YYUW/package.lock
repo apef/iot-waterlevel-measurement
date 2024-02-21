@@ -1,4 +1,6 @@
+sdk: ^2.0.0-alpha.1
 prefixes:
+  dhtxx: toit-dhtxx
   dyp_a01: dyp_a01
   ntp: pkg-ntp
 packages:
@@ -12,3 +14,8 @@ packages:
     name: ntp
     version: 1.0.0
     hash: 1c3cc4a4819f459393f00efc576f66f838665719
+  toit-dhtxx:
+    url: github.com/toitware/toit-dhtxx
+    name: dhtxx
+    version: 1.4.0
+    hash: bf69ad9ac348324803caf8919cf7e9f34aa3d343
