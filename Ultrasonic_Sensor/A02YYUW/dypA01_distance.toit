@@ -9,7 +9,7 @@ main:
     --rx_pin=17
 
   while true:
-    msg := "{\"range\": $(dyp.range)}"
+    msg := "Distance: $(dyp.range) mm"
     print msg
 
   dyp.off
