@@ -6,7 +6,7 @@ main:
   spi := spi.Bus
     --mosi=gpio.Pin 27  // MOSI
     --miso=gpio.Pin 19  // MISO
-    --clock=gpio.Pin //14  // Clock
+    --clock=gpio.Pin 5 //14  // Clock
 
   device := spi.device
     --cs=gpio.Pin 18
