@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  release:
+    types: [published]
+
+env:
+  TOIT_VERSION: v2.0.0-alpha.121
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Toit
+        id: setup-toit
+        uses: toitlang/action-setup@v1
+        with:
+          toit-version: ${{ env.TOIT_VERSION }}
+
+      # Fetch the dependencies. Different for each platform.
+      - name: Install dependencies - Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          cmake --version
+      - name: Install dependencies - macOS
+        if: runner.os == 'macOS'
+        run: |
+          cmake --version
+      - name: Install dependencies - Windows
+        if: runner.os == 'Windows'
+        run: |
+          cmake --version
+
+      - name: Run cmake
+        shell: bash
+        run: |
+          make rebuild-cmake
+          cmake build
+
+      - name: Install packages
+        run: |
+          make install-pkgs
+
+      - name: Test
+        run: |
+          make test

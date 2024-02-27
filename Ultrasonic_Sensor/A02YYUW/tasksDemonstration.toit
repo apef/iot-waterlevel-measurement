@@ -3,7 +3,7 @@ import dyp_a01 show DYP_A01
 main:
 
 
-  task::sensor
+  // task::sensor
   task::durationTask
   task::timeTask
   task::genTask

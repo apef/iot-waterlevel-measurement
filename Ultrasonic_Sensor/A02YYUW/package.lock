@@ -1,5 +1,6 @@
 sdk: ^2.0.0-alpha.1
 prefixes:
+  dartino_regexp: toit-dartino-regexp
   dhtxx: toit-dhtxx
   dyp_a01: dyp_a01
   ntp: pkg-ntp
@@ -9,11 +10,23 @@ packages:
     name: dyp_a01
     version: 1.0.0
     hash: 1aeca1ac6f5cb220f0f74de5757367d513eedeaa
+  pkg-case:
+    url: github.com/toitlang/pkg-case
+    name: case
+    version: 0.2.0
+    hash: 62898a912a1c8beffd007ce8ccc89ff685f43f7a
   pkg-ntp:
     url: github.com/toitlang/pkg-ntp
     name: ntp
     version: 1.0.0
     hash: 1c3cc4a4819f459393f00efc576f66f838665719
+  toit-dartino-regexp:
+    url: github.com/erikcorry/toit-dartino-regexp
+    name: dartino_regexp
+    version: 0.2.0
+    hash: 63d0a0c1451d35fb149db823e6b38ee1bd0a1a1b
+    prefixes:
+      case: pkg-case
   toit-dhtxx:
     url: github.com/toitware/toit-dhtxx
     name: dhtxx

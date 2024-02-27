@@ -11,9 +11,15 @@ import reader show BufferedReader
 
 main:
   // LoRa OTTA configuration variables for end device
-  device_eui := ""
+  // device_eui := ""
+  // app_eui := "0000000000000000"
+  // app_key := ""
+  // ul_dl_mode := ""
+  // join_eui := "0000000000000000"
+
+  device_eui := "70B3D57ED8002888"
   app_eui := "0000000000000000"
-  app_key := ""
+  app_key := "AE2EFAAF6DA69FFBED43FDB1A1A07384"
   ul_dl_mode := ""
   join_eui := "0000000000000000"
 
@@ -24,15 +30,15 @@ main:
   M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode
   
   isconnected := false
-  while isconnected false:
+  while isconnected == false:
    isconnected = m5LoRa_checkConnection loraModule
    if not isconnected:
     print "Retrying connection..."
     sleep --ms=1000
 
 
-  print "Prior to function"
-  task:: readLora loraModule
+  // print "Prior to function"
+  // task:: readLora loraModule
   // task:: writeLora loraModule "TestPing" true
 
 readLora loraModule:
@@ -72,14 +78,14 @@ M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode:
   writer.write "AT+CULDLMODE=" + ul_dl_mode + "\r\n"
   print "LoRa Module OTTA set."
   
-m5LoRa_checkConnection loraModule -> boolean:
+m5LoRa_checkConnection loraModule -> bool:
   isconnected := false
   print "Checking LoRa connection.."
-  writer := Write loraModule
+  writer := Writer loraModule
   timeVal := 10
   writer.write "AT+CGMI?\r\n"
 
-  sData := LoRaWaitMSG
+  sData := LoRaWaitMSG loraModule
   // task::
   //   sData := loraModule.read
   
@@ -103,10 +109,10 @@ m5LoRa_checkConnection loraModule -> boolean:
 m5LoRa_checkJoinStatus loraModule:
   responseStr := ""
 
-  writer := Write loraModule
+  writer := Writer loraModule
   writer.write "AT+CSTATUS?\r\n"
 
-  sData := task::LoRaWaitMSG
+  sData := task::LoRaWaitMSG loraModule
   
   
   if sData == null:
@@ -115,8 +121,9 @@ m5LoRa_checkJoinStatus loraModule:
   
 LoRaWaitMSG loraModule:
   timeVal := 10
+  sData := null
   task::
-    sData := loraModule.read
+    sData = loraModule.read
   
   task::
     while timeVal > 0:
@@ -124,7 +131,7 @@ LoRaWaitMSG loraModule:
       timeVal = timeVal - 1
 
   while sData == null or timeVal > 0:
-    pass
+    timewaste := ""
   
   if sData == null:
     print "Retries exceeded, no data was recieved."
