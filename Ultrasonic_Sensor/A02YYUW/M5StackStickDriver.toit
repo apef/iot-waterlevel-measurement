@@ -104,8 +104,11 @@ M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode:
   writer := Writer loraModule
 
   writer.write "AT+CJOINMODE=0\r\n"
+  sleep --ms=50
   writer.write "AT+CDEVEUI=" + device-eui + "\r\n"
+  sleep --ms=50
   writer.write "AT+CAPPEUI=" + app_eui + "\r\n"
+  sleep --ms=50
   writer.write "AT+CAPPKEY=" + app_key + "\r\n"
   // writer.write "AT+CULDLMODE=" + ul_dl_mode + "\r\n"
   print "LoRa Module OTTA set."
@@ -220,27 +223,28 @@ main:
   // loraModule := uart.Port --rx=rx --baud-rate=115200 --tx=tx
   loraModule := uart.Port --rx=rx --baud-rate=115200 --tx=tx
   print "test"
-
+  
   sleep --ms=1000
   isconnected := checkDeviceConnect loraModule
 
   if (isconnected):
     print "Device is connected"
-  
-
+    
+    
+  task:: readLora loraModule
   writer := Writer loraModule
 
-  writer.write "AT+IREBOOT=0\r\n"
-  print "IREBOOT.."
+  // writer.write "AT+CRESTORE\r\n"
+  // print "CRESTORE.."
   sleep --ms=1000
-  writer.write "AT+CRESTORE\r\n"
-  print "CRESTORE.."
-  sleep --ms=100
   M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode
   sleep --ms=2000
   writer.write "AT+CSAVE\r\n"
   print "CSAVE CONFIG.."
   sleep --ms=2000
+  writer.write "AT+IREBOOT=0\r\n"
+  print "IREBOOT.."
+  sleep --ms=1000
   
   // M5LoRa_config_ABP loraModule device_eui device_addr app_skey net_skey ul_dl_mode
   sleep --ms=1000
@@ -252,10 +256,20 @@ main:
   // sleep --ms=1000
   M5_setRxWindow loraModule "869525000" spreadFactor
   sleep --ms=1000
+
+  writer.write "AT+CDEVEUI?\r\n"
+  print "Reading devUI.."
+
+  writer.write "AT+CAPPEUI?\r\n"
+  print "Reading APPEUI"
+  writer.write "AT+CAPPKEY?\r\n"
+  print "Reading APPKEY"
+
+
+  sleep --ms=5000
   M5_startJoin loraModule
   // sleep --ms=1000
 
-  task:: readLora loraModule
 
 
 
