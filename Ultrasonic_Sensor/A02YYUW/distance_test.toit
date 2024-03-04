@@ -5,7 +5,7 @@ import gpio
 import uart
 
 main:
-  rx := gpio.Pin 16  // Labeled as TX on the sensor.
+  rx := gpio.Pin 18  // Labeled as TX on the sensor.
   tx := gpio.Pin 17
   // port := uart.Port --rx=rx --baud-rate=9600 --tx=null
   port := uart.Port --rx=rx --baud-rate=115200 --tx=tx
