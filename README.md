@@ -19,8 +19,13 @@ This project uses a Wireless Stick Lite V3 from Heltec, which has BLE/WiFi/LoRa 
 * Battery level measuring: MAX17048 Fuel cell Gauge
 
 ### Wiring diagram
+## Wireless Stick Lite V2
 <img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_schem.png?raw=true" width="500">
 <img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_bb.png?raw=true" width="600">
+
+## Wireless Stick Lite V3
+<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_HTITwslV3_schem.png?raw=true" width="500">
+<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_HTITwslV3_bb.png?raw=true" width="400">
 
 ## Software
 ### TOIT Framework
