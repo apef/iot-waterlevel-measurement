@@ -6,7 +6,7 @@ main:
 
   dyp := DYP_A01
     //--tx_pin=17
-    --rx_pin=3//17
+    --rx_pin=17//17
 
   while true:
     msg := "Distance: $(dyp.range) mm"

@@ -175,6 +175,19 @@ M5_startJoin loraModule:
   writer.write "AT+CJOIN=1,0,60,8\r\n"
   print "Joining node call sent"
 
+M5_sendMSG loraModule confirm nbtrials data:
+  // encodedData := encodeMSG data
+  encodedData := data
+  // encodedData
+  command := "AT+DTRX=" + confirm + "," + nbtrials + "," + encodedData.size + "," + encodedData + "\r\n"
+  writer := Writer loraModule
+  writer.write command
+
+
+
+
+// M5_readMSG loraModule:
+
 
 
 
@@ -225,6 +238,7 @@ main:
   print "test"
   
   sleep --ms=1000
+
   isconnected := checkDeviceConnect loraModule
 
   if (isconnected):
@@ -269,21 +283,18 @@ main:
   sleep --ms=5000
   M5_startJoin loraModule
   // sleep --ms=1000
+  task::checking
 
 
+  sleep --ms=30000
+  print "Writing test message"
+  writer.write "AT+DTRX=1,2,2,FF55\r\n"//"AT+DTRX=1,1,1,46\r\n";
+  // confirm := 
+  // M5_sendMSG loraModule confirm nbtrials data
 
+checking:
+  while true:
+    sleep --ms=20000
+    print "Still executing code"
 
-  // waitMSG loraModule 5000
-  // print "Back to main"
-
-  
-  // waitMSG loraModule 5000
-  // // // print check
-  // print "Back to main2"
-  // print "Back to main3"
-
-
-  // task:: readLora loraModule2 2
-  // task:: readLora loraModule3 3
-  // task:: writeLora loraModule "TestPing" true
 
