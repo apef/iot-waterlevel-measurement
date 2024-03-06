@@ -35,6 +35,9 @@ def saveToFile(someJSON):
   snr = uplink_message["rx_metadata"][0]["snr"];
   data_rate = uplink_message["settings"]["data_rate"];
   # consumed_airtime = uplink_message["consumed_airtime"];	
+
+  print("data_rate", type(data_rate), data_rate)
+  print("snr", type(snr), snr)
   frm_payload = base64.b64decode(frm_payload).hex()#' '.join([ str(ord(c)) for c in frm_payload.decode('base64') ])
   # frm_payload = frm_payload[4:]
   # Daily log of uplinks
