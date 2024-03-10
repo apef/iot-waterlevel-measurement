@@ -11,6 +11,7 @@
 //   }
 // }
 
+import dyp_a01 show DYP_A01
 import reader show BufferedReader
 import writer show Writer
 import uart
@@ -25,18 +26,13 @@ checkDeviceConnect loraModule -> bool:
   response := ""
   writer := Writer loraModule
   isconnected := false
-  // writer.write "AT+CGMI?\r\n"
- 
-  // task:: readLora loraModule
-  // print "Task should be running in the background"
-  // task:: waitMSG loraModule "AT+CGMI?\r\n" 5000
+
   response = waitMSG loraModule "AT+CGMI?\r\n" 5000
   print "Task running in background"
   sleep --ms=6000
   print "Returned, response: $(response)"
 
   re := RegExp "\nOK\n"
-  // line := " AT+CGMI?\r\n\n+CGMI=ASR\nOK\n"
   check := re.has_matching response
 
   if check:
@@ -45,25 +41,6 @@ checkDeviceConnect loraModule -> bool:
 
   return isconnected
 
-
-
-
-// /*! @brief Waiting for a period of time to receive a message
-//  *  @param time Waiting time (milliseconds)
-//  *  @return Received messages */
-//  String M5_LoRaWAN::waitMsg(unsigned long time) {
-//   String restr;
-//   unsigned long start = millis();
-//   while (1) {
-//       if (_serial->available() || (millis() - start) < time) {
-//           String str = _serial->readString();
-//           restr += str;
-//       } else {
-//           break;
-//       }
-//   }
-//   return restr;
-// }
 
 waitMSG loraModule command waitTime -> string:
   response := ""
@@ -75,11 +52,8 @@ waitMSG loraModule command waitTime -> string:
   // print "WaitMSG"
   print "Wrote to device"
   while true:
-    // print "$(timeStart.to-now.in-ms) -- $(waitTime)"
     if (timeStart.to-now.in-ms < waitTime):
-      // print timeStart.to-now.in-ms
       line := reader.read-line
-      // print line
       response += line + "\n"
 
       if line == "OK":
@@ -88,14 +62,12 @@ waitMSG loraModule command waitTime -> string:
       
       if line == "FAIL":
         print "FAIL WAS FOUND"
-        // response = null
         break
 
     if (timeStart.to-now.in-ms > waitTime):
       print "Wait time is over... Retuning"
       break
   print "returning"
-  // retString = response
   return response
 
 
@@ -185,38 +157,7 @@ M5_sendMSG loraModule confirm nbtrials data:
 
 
 
-
-// M5_readMSG loraModule:
-
-
-
-
-  
-//--Device 1--
-// device_eui := "70B3D57ED8002888"
-// app_eui := "0000000000000000"
-// app_key := "AE2EFAAF6DA69FFBED43FDB1A1A07384"
-// ul_dl_mode := "2"
-// join_eui := "0000000000000000"
-
-//--Device 2--
-// device_eui := "70B3D57ED8002968"
-// app_key := "6EC4DD4D9054B567EFA68281A49186A7"
-//--
-
-//--ABP Device 3--
-// device_eui := "70B3D57ED8002969"
-// device_addr := "27FD2F18"
-// app_skey := "3C34573DD015D21EB8B7FB4CCFCE041E"
-// net_skey := "E979B942823FA364D1A7D172E020E783"
-//---
-
-//dev 4
-//---
-// device_eui := "70B3D57ED800296A"
-// app_key := "ED5DA1E8471B4B1C4B44366EE93BC71E"
-
-//dev 5
+//Device OTAA
 device_eui := "70B3D57ED00656F9"
 app_eui := "0000000000000001"
 app_key := "4DC5446B5A56C2414924C00EFCF19738"
@@ -232,17 +173,17 @@ ul_dl_mode := "2"
 main:
   tx := gpio.Pin 17
   rx := gpio.Pin 16  // Labeled as TX on the sensor.
-  // loraModule  := uart.Port --rx=rx --baud-rate=115200 --tx=null
-  // loraModule := uart.Port --rx=rx --baud-rate=115200 --tx=tx
   loraModule := uart.Port --rx=rx --baud-rate=115200 --tx=tx
-  print "test"
-  
-  sleep --ms=1000
 
-  isconnected := checkDeviceConnect loraModule
+  isconnected := false//checkDeviceConnect loraModule
 
-  if (isconnected):
-    print "Device is connected"
+  // if (isconnected):
+  //   print "Device is connected"
+  // else:
+  while not isconnected:
+    isconnected := checkDeviceConnect loraModule
+
+  print "Device is connected."
     
     
   task:: readLora loraModule
@@ -252,10 +193,10 @@ main:
   // print "CRESTORE.."
   sleep --ms=1000
   M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode
-  sleep --ms=2000
+  sleep --ms=1000
   writer.write "AT+CSAVE\r\n"
   print "CSAVE CONFIG.."
-  sleep --ms=2000
+  sleep --ms=1000
   writer.write "AT+IREBOOT=0\r\n"
   print "IREBOOT.."
   sleep --ms=1000
@@ -284,6 +225,7 @@ main:
   M5_startJoin loraModule
   // sleep --ms=1000
   task::checking
+  task::sensor
 
 
   sleep --ms=30000
@@ -296,5 +238,18 @@ checking:
   while true:
     sleep --ms=20000
     print "Still executing code"
+
+
+
+sensor:
+  dyp := DYP_A01
+    //--tx_pin=17
+    --rx_pin=3//17//18
+
+  while true:
+    msg := "Distance: $(dyp.range) mm"
+    print msg
+
+  dyp.off
 
 
