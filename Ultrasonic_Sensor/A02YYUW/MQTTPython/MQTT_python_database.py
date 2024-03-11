@@ -3,8 +3,6 @@ import base64
 import mysql.connector, re, time
 from mysql.connector import errorcode
 import os, sys, logging, time
-VER  = "2021-05-24 v1.2"
-print(os.path.basename(__file__) + " " + VER)
 
 print("Imports:")
 import paho.mqtt.client as mqtt

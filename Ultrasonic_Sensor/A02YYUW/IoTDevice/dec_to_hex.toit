@@ -1,10 +1,3 @@
-import encoding.hex
-
-main:
-  decVal := 5882
-  hexVal := dec_to_hex decVal
-  print hexVal
-
 dec_to_hex decVal:
 
   decVal = decVal.to-int
@@ -44,8 +37,3 @@ to_char value -> string:
     return ""
   
   return chrLst[value]
-
-
-  
-
-  

@@ -13,17 +13,15 @@ class M5LoRaDevice:
   isconnected := false
   sensorValue := 0
 
-  tx := gpio.Pin 17
-  rx := gpio.Pin 16
+  // tx := gpio.Pin 17
+  // rx := gpio.Pin 16
   loraModule := null
 
   //Device OTAA
-  device_eui := "70B3D57ED00656F9"
-  app_eui := "0000000000000001"
-  app_key := "4DC5446B5A56C2414924C00EFCF19738"
+  device_eui := ""
+  app_eui := ""
+  app_key := ""
 
-
-  // app_eui := "0000000000000000"
   join_eui := "0000000000000000"
   freq_mask := "0001"
   RxWindow := "869525000"
@@ -31,26 +29,32 @@ class M5LoRaDevice:
   ul_dl_mode := "2"
     
   
-  constructor:
+  constructor tx_pin/int rx_pin/int device_ui/string app_eui/string app_key/string:
+    tx := gpio.Pin tx_pin
+    rx := gpio.Pin rx_pin
     loraModule = uart.Port --rx=rx --baud-rate=115200 --tx=tx
+
+
+    //Device OTAA
+    device_eui = "70B3D57ED00656F9"
+    app_eui = "0000000000000001"
+    app_key = "4DC5446B5A56C2414924C00EFCF19738"
 
   start:
 
-    task:: checkDeviceConnect //loraModule
+    task:: checkDeviceConnect
     
     while not isconnected:
       sleep --ms=100
 
     print "Device is connected."
+    
+    task:: readLora 
       
-      
-    task:: readLora loraModule
     writer := Writer loraModule
 
-    // writer.write "AT+CRESTORE\r\n"
-    // print "CRESTORE.."
     sleep --ms=1000
-    M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode
+    M5LoRa_config_OTTA device_eui app_eui app_key ul_dl_mode
     sleep --ms=1000
     writer.write "AT+CSAVE\r\n"
     print "CSAVE CONFIG.."
@@ -58,55 +62,31 @@ class M5LoRaDevice:
     writer.write "AT+IREBOOT=0\r\n"
     print "IREBOOT.."
     sleep --ms=1000
-    
-    // M5LoRa_config_ABP loraModule device_eui device_addr app_skey net_skey ul_dl_mode
-    sleep --ms=1000
-    // M5_SetClass loraModule "2"
-    // sleep --ms=1000
-    M5_setWorkMode loraModule "2"
-    // sleep --ms=1000
-    // M5_setFreqMask loraModule freq_mask
-    // sleep --ms=1000
-    M5_setRxWindow loraModule "869525000" spreadFactor
+
+
+    M5_setWorkMode "2"
+
+    M5_setRxWindow "869525000" spreadFactor
     sleep --ms=1000
 
-    writer.write "AT+CDEVEUI?\r\n"
-    print "Reading devUI.."
+    // writer.write "AT+CDEVEUI?\r\n"
+    // print "Reading devUI.."
 
-    writer.write "AT+CAPPEUI?\r\n"
-    print "Reading APPEUI"
-    writer.write "AT+CAPPKEY?\r\n"
-    print "Reading APPKEY"
-
+    // writer.write "AT+CAPPEUI?\r\n"
+    // print "Reading APPEUI"
+    // writer.write "AT+CAPPKEY?\r\n"
+    // print "Reading APPKEY"
 
     sleep --ms=5000
-    M5_startJoin loraModule
+    M5_startJoin
 
 
-
-
-  checking:
-    while true:
-      sleep --ms=20000
-      print "Still executing code"
-      print "The sensor value in this device is: $(sensorValue), in hex: $(dec_to_hex sensorValue)"
-
-  sensor:
-    dyp := DYP_A01
-      //--tx_pin=17
-      --rx_pin=3//17//18
-
-    while true:
-      sensorValue = dyp.range
-      
-    dyp.off
-
-  checkDeviceConnect: //loraModule:
+  checkDeviceConnect:
     print "Check device connect"
     response := ""
     writer := Writer loraModule
   
-    response = waitMSG loraModule "AT+CGMI?\r\n" 5000
+    response = waitMSG "AT+CGMI?\r\n" 5000
     print "Task running in background"
     sleep --ms=6000
     print "Returned, response: $(response)"
@@ -118,7 +98,7 @@ class M5LoRaDevice:
       print "REPONSE WAS OK!!!!"
       isconnected = true
   
-  waitMSG loraModule command waitTime -> string:
+  waitMSG command waitTime -> string:
     response := ""
     timeStart := Time.now
   
@@ -146,7 +126,7 @@ class M5LoRaDevice:
     return response
   
   
-  M5LoRa_config_OTTA loraModule device_eui app_eui app_key ul_dl_mode:
+  M5LoRa_config_OTTA device_eui app_eui app_key ul_dl_mode:
     print "Configurating LoRa Module OTTA.."
     writer := Writer loraModule
   
@@ -161,7 +141,7 @@ class M5LoRaDevice:
     print "LoRa Module OTTA set."
   
   
-  M5LoRa_config_ABP loraModule device_eui device_addr app_skey net_skey ul_dl_mode:
+  M5LoRa_config_ABP device_eui device_addr app_skey net_skey ul_dl_mode:
     writer := Writer loraModule
   
     writer.write "AT+CJOINMODE=1\r\n"
@@ -173,7 +153,7 @@ class M5LoRaDevice:
     print "LoRa Module ABP set."
   
   
-  readLora loraModule:
+  readLora:
     print "LoraModule started."
     
     writer := Writer loraModule
@@ -190,13 +170,13 @@ class M5LoRaDevice:
     
   // Sets the class for the device  
   // mode  0: classA 1: classB 2: classC 
-  M5_SetClass loraModule mode:
+  M5_SetClass mode:
     writer := Writer loraModule
     writer.write "AT+CCLASS=" + mode + "\r\n"
     print "LoRaWAN Class set"
   
   // Setting the reception window parameters
-  M5_setRxWindow loraModule freq spreadFactor:
+  M5_setRxWindow freq spreadFactor:
     writer := Writer loraModule
     // writer.write "AT+CRXP=0,0," + freq + "\r\n"
     writer.write "AT+CRXP=$(freq),$(spreadFactor)"+ "\r\n"
@@ -204,30 +184,26 @@ class M5LoRaDevice:
   
   // brief Setting the band mask
   //For channels 0-7, the corresponding mask is 0001, for channels 8-15 it is 0002, and so on.
-  M5_setFreqMask loraModule mask:
+  M5_setFreqMask mask:
     writer := Writer loraModule
     writer.write "AT+CFREQBANDMASK=" + mask + "\r\n"
     print "LoRaWAN Freqbandmask set"
     
   // Sets the work mode
-  M5_setWorkMode loraModule mode:
+  M5_setWorkMode mode:
     writer := Writer loraModule
     writer.write "AT+CWORKMODE=$(mode)\r\n"
     print "Work mode set"
   
   // Joins the Node
-  M5_startJoin loraModule:
+  M5_startJoin:
     writer := Writer loraModule
     writer.write "AT+CJOIN=1,0,60,8\r\n"
     print "Joining node call sent"
   
-  M5_sendMSG loraModule confirm nbtrials data:
+  M5_sendMSG confirm nbtrials data:
     encodedData := dec_to_hex data
     command := "AT+DTRX=" + "$(confirm)" + "," + "$(nbtrials)" + "," + "$(encodedData.size)" + "," + encodedData + "\r\n"
     print "Sending message: $(command)"
     writer := Writer loraModule
     writer.write command
-
-// main:
-//   iot_device := M5LoRaDevice
-//   iot_device.start
