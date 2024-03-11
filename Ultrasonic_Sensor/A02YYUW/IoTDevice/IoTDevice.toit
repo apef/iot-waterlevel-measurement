@@ -23,7 +23,8 @@ main:
   iotDevice.start
   sensorModule.start
 
-  sleep --ms=10000
+  print "Sleep for 30 seconds."
+  sleep --ms=30000
   sendSensorData iotDevice sensorModule
   sleep --ms=1000
   esp32.deep-sleep (Duration --s=10)
