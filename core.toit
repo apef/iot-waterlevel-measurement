@@ -1,22 +1,30 @@
-import gpio
+// import gpio
+import esp32
 import system.services
 import system.storage
-import dyp_a01 show DYP_A01
+// import dyp_a01 show DYP_A01
 
 import .RangerSensorService
-import .LoRAConnectionService
-import .StorageService
+// import .LoRAConnectionService
+import .LoRaConnectionLite
+import .EnvironmentSensorService
+// import .StorageService
 
 main:
   m5_tx := 17
   m5_rx := 16
   sensor_tx := 4
   sensor_rx := 3
-
+  adc_pin := 32
+  referenceDistance := 0
   // //Device OTAA
   device_eui := "70B3D57ED00656F9"
   app_eui := "0000000000000001"
   app_key := "4DC5446B5A56C2414924C00EFCF19738"
+
+  // device_eui := "8922000128426511"
+  // app_eui := "e1d570eea3ae2375"
+  // app_key := "bc4877fdd87d4c9ca734ad4b571c9c32"
 
   spawn::
     loraservice := LoraConnectionServiceProvider
@@ -26,7 +34,13 @@ main:
   spawn::  
     sensorservice := RangeSensorServiceProvider
     sensorservice.install
-    task:: sensorservice.run --tx=sensor_tx --rx=sensor_rx
+    task:: sensorservice.run --tx=sensor_tx --rx=sensor_rx --refDistance=referenceDistance
+
+  spawn::
+    envservice := EnvironmentSensorServiceProvider
+    envservice.install
+    task:: envservice.run --adc-pin=adc_pin
+
 
   // spawn::
   //   storageservice := StorageServiceProvider
@@ -38,11 +52,14 @@ main:
   loraclient.open
   sensorclient.open
   // storageclient.open
-  
-  // (Duration --s=60).periodic:
-    // print sensorclient.range
-    // dist := sensorclient.range
+
+  sleep --ms=300000
+  print sensorclient.range
+  dist := sensorclient.range
+  loraclient.sendMSG dist
+  esp32.deep-sleep (Duration --s=1800)
     // write-to-storage "test"//"$(dist)"
+
   
   // (Duration --s=300).periodic:
 

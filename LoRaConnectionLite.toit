@@ -16,7 +16,7 @@ interface LoraConnectionService:
       --major=1
       --minor=0
 
-  sendMSG data/string -> bool
+  sendMSG data/int -> bool
   static sendMSG-INDEX ::= 0
 
 // ------------------------------------------------------------------
@@ -27,7 +27,7 @@ class LoraConnectionServiceClient extends services.ServiceClient implements Lora
     assert: selector.matches SELECTOR
     super selector
 
-  sendMSG data/string -> bool:
+  sendMSG data/int -> bool:
     return invoke_ LoraConnectionService.sendMSG-INDEX data
 
 // ------------------------------------------------------------------
@@ -55,17 +55,15 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     if index == LoraConnectionService.sendMSG-INDEX: return sendMSG arguments
     unreachable
   
-  sendMSG data/string -> bool:
-    print "Recieved request to send Data payload: $(data)"
-    // print "$(data)"
-    // return false
+  sendMSG data/int-> bool:
+    print "Got Request to send: $(data)"
     confirm := 1
     nbtrials := 8
+    // if 
     encodedData := dec_to_hex data
-    command := "AT+DTRX=" + "$(confirm)" + "," + "$(nbtrials)" + "," + "$(encodedData.size)" + "," + encodedData + "\r\n"
-    // print "Sending message: $(command)"
-    // writer := Writer loraModule
-    // writer.write command
+    strData := "$(encodedData)"
+    command := "AT+DTRX=" + "$(confirm)" + "," + "$(nbtrials)" + "," + "$(strData.size)" + "," + strData + "\r\n"
+    print "Sending command: $(command)"
     response := waitMSG command 10000
     re := RegExp "\nOK\n"
     check := re.has_matching response
@@ -88,46 +86,42 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     
     while not isconnected:
       sleep --ms=100
-
-    print "Device is connected."
     
     task:: readLora 
       
     writer := Writer loraModule
+  
+    writer.write "AT+CJOINMODE=0\r\n"
+    sleep --ms=50
+    writer.write "AT+CDEVEUI=" + device-eui + "\r\n"
+    sleep --ms=50
+    writer.write "AT+CAPPEUI=" + app_eui + "\r\n"
+    sleep --ms=50
+    writer.write "AT+CAPPKEY=" + app_key + "\r\n"
+    // writer.write "AT+CULDLMODE=" + ul_dl_mode + "\r\n"
+    sleep --ms=50
 
-    M5LoRa_config_OTTA device_eui app_eui app_key ul_dl_mode
+
     sleep --ms=1000
     writer.write "AT+CSAVE\r\n"
-    print "CSAVE CONFIG.."
-    sleep --ms=1000
-    writer.write "AT+IREBOOT=0\r\n"
-    print "IREBOOT.."
-    sleep --ms=1000
-    M5_setWorkMode "2"
-    M5_setRxWindow "869525000" spreadFactor
-    sleep --ms=1000
+    sleep --ms=10000
 
-    M5_startJoin
-
+    writer.write "AT+CJOIN=1,0,60,8\r\n"
 
   checkDeviceConnect:
-    print "Check device connect"
     response := ""
     writer := Writer loraModule
     check := false
     
     try:
       response = waitMSG "AT+CGMI?\r\n" 5000
-      print "Task running in background"
       sleep --ms=6000
-      print "Returned, response: $(response)"
   
       re := RegExp "\nOK\n"
       check = re.has_matching response
   
     finally:
       if check:
-        print "REPONSE WAS OK!!!!"
         isconnected = true
 
   
@@ -145,38 +139,17 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
         response += line + "\n"
   
         if line == "OK":
-          print "OK WAS RECIEVED"
           break
         
         if line == "FAIL":
-          print "FAIL WAS RECIEVED"
           break
   
       if (timeStart.to-now.in-ms > waitTime):
-        print "Wait time is over... Retuning"
         break
-    print "returning"
     return response
   
   
-  M5LoRa_config_OTTA device_eui app_eui app_key ul_dl_mode:
-    print "Configurating LoRa Module OTTA.."
-    writer := Writer loraModule
-  
-    writer.write "AT+CJOINMODE=0\r\n"
-    sleep --ms=50
-    writer.write "AT+CDEVEUI=" + device-eui + "\r\n"
-    sleep --ms=50
-    writer.write "AT+CAPPEUI=" + app_eui + "\r\n"
-    sleep --ms=50
-    writer.write "AT+CAPPKEY=" + app_key + "\r\n"
-    // writer.write "AT+CULDLMODE=" + ul_dl_mode + "\r\n"
-    sleep --ms=50
-    print "LoRa Module OTTA set."
-  
   readLora:
-    print "LoraModule started."
-    
     writer := Writer loraModule
     reader := BufferedReader loraModule
   
@@ -188,36 +161,3 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
                 break
             loraData := sData.to_string
             print "$loraData"
-    
-  // Sets the class for the device  
-  // mode  0: classA 1: classB 2: classC 
-  M5_SetClass mode:
-    writer := Writer loraModule
-    writer.write "AT+CCLASS=" + mode + "\r\n"
-    print "LoRaWAN Class set"
-  
-  // Setting the reception window parameters
-  M5_setRxWindow freq spreadFactor:
-    writer := Writer loraModule
-    // writer.write "AT+CRXP=0,0," + freq + "\r\n"
-    writer.write "AT+CRXP=$(freq),$(spreadFactor)"+ "\r\n"
-    print "LoRaWAN RxWindow set"
-  
-  // brief Setting the band mask
-  //For channels 0-7, the corresponding mask is 0001, for channels 8-15 it is 0002, and so on.
-  M5_setFreqMask mask:
-    writer := Writer loraModule
-    writer.write "AT+CFREQBANDMASK=" + mask + "\r\n"
-    print "LoRaWAN Freqbandmask set"
-    
-  // Sets the work mode
-  M5_setWorkMode mode:
-    writer := Writer loraModule
-    writer.write "AT+CWORKMODE=$(mode)\r\n"
-    print "Work mode set"
-  
-  // Joins the Node
-  M5_startJoin:
-    writer := Writer loraModule
-    writer.write "AT+CJOIN=1,0,60,8\r\n"
-    print "Joining node call sent"

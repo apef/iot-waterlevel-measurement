@@ -1,4 +1,4 @@
-import gpio
+// import gpio show Pin
 import system.services
 import dyp_a01 show DYP_A01
 
@@ -30,7 +30,11 @@ class RangeSensorServiceClient extends services.ServiceClient implements RangeSe
 class RangeSensorServiceProvider extends services.ServiceProvider
     implements RangeSensorService services.ServiceHandler:
 
-  range-last_ := 0
+  range-last_ := 0 // The last measured distance
+
+  // The full distance from the devices location down to the limit. For example, if place on a bridge
+  // it's the distance down to the seabed.
+  referenceDistance := 0  
 
   constructor:
     super "range-sensor" --major=1 --minor=0
@@ -46,11 +50,15 @@ class RangeSensorServiceProvider extends services.ServiceProvider
     else:
       return range-last_
 
-  run --tx/int --rx/int -> none:
+  waterlevelCalc distance/int -> int:
+    return referenceDistance - distance
+
+  run --tx/int --rx/int --refDistance/int -> none:
+    referenceDistance = refDistance
     sensor := DYP_A01
         --tx-pin=tx //not used
         --rx-pin=rx
     while true:
-      range-last_ = sensor.range
+      range-last_ = waterlevelCalc sensor.range
       // print range-last_
     sensor.off
