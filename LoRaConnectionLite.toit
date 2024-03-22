@@ -55,7 +55,7 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     if index == LoraConnectionService.sendMSG-INDEX: return sendMSG arguments
     unreachable
   
-  sendMSG data/int-> bool:
+  sendMSG data/int -> bool:
     print "Got Request to send: $(data)"
     confirm := 1
     nbtrials := 8
@@ -87,7 +87,7 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     while not isconnected:
       sleep --ms=100
     
-    task:: readLora 
+    // task:: readLora 
       
     writer := Writer loraModule
   

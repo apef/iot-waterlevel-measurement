@@ -1,14 +1,11 @@
-// import gpio
 import esp32
 import system.services
 import system.storage
-// import dyp_a01 show DYP_A01
-
-import .RangerSensorService
-// import .LoRAConnectionService
+import .DistanceSensorService
 import .LoRaConnectionLite
 import .EnvironmentSensorService
-// import .StorageService
+import .BatteryLevelService
+import math show pow
 
 main:
   m5_tx := 17
@@ -16,23 +13,22 @@ main:
   sensor_tx := 4
   sensor_rx := 3
   adc_pin := 32
-  referenceDistance := 0
-  // //Device OTAA
-  device_eui := "70B3D57ED00656F9"
+  bat_pin := 34
+  referenceDistance := 4000 // Must be set to the correct reference distance, for valid measurments.
+
+  //-------Device OTAA-----------
+  device_eui := "70B3D57ED00656F9" 
   app_eui := "0000000000000001"
   app_key := "4DC5446B5A56C2414924C00EFCF19738"
-
-  // device_eui := "8922000128426511"
-  // app_eui := "e1d570eea3ae2375"
-  // app_key := "bc4877fdd87d4c9ca734ad4b571c9c32"
-
-  spawn::
+  // ----- Must be set to join a network
+  
+  spawn:: // Starts up another container to run the specified service in
     loraservice := LoraConnectionServiceProvider
     loraservice.install
     task:: loraservice.run m5_tx m5_rx device-eui app_eui app_key
   
   spawn::  
-    sensorservice := RangeSensorServiceProvider
+    sensorservice := DistanceSensorServiceProvider
     sensorservice.install
     task:: sensorservice.run --tx=sensor_tx --rx=sensor_rx --refDistance=referenceDistance
 
@@ -40,97 +36,61 @@ main:
     envservice := EnvironmentSensorServiceProvider
     envservice.install
     task:: envservice.run --adc-pin=adc_pin
+  
+  spawn::
+    batservice := BatteryLevelServiceProvider
+    batservice.install
+    task:: batservice.run --adc-pin=bat-pin
 
-
-  // spawn::
-  //   storageservice := StorageServiceProvider
-  //   storageservice.install
   
   loraclient := LoraConnectionServiceClient
-  sensorclient := RangeSensorServiceClient
-  // storageclient := StorageServiceClient
+  sensorclient := DistanceSensorServiceClient
+  envclient := EnvironmentSensorServiceClient
+  batclient := BatteryLevelServiceClient
+
+
+  sleep --ms=1000 // Sleep while the device is connecting to LoRaWAN
+
+  // Opening up the communication to the services
   loraclient.open
   sensorclient.open
-  // storageclient.open
+  envclient.open
+  batclient.open
 
-  sleep --ms=300000
-  print sensorclient.range
-  dist := sensorclient.range
-  loraclient.sendMSG dist
-  esp32.deep-sleep (Duration --s=1800)
-    // write-to-storage "test"//"$(dist)"
-
+  task::
+    while true:
+      temp := envclient.temp
+      humidity := envclient.humidity
+      indexTempValue := setIndex temp.to-int 2
+      indexHumidityValue := setIndex humidity.to-int 3
+    
+      loraclient.sendMSG indexTempValue
+      sleep --ms=1000
+      loraclient.sendMSG indexHumidityValue
+      sleep --ms=50000
   
-  // (Duration --s=300).periodic:
+  task::    
+    while true:
+      dist := sensorclient.distance
+      indexedValue := setIndex dist 1
+      loraclient.sendMSG indexedValue
+      sleep --ms=30000
 
-  //   list-storage
+  task::
+    while true:
+      batlvl := batclient.batlvl
+      indexedValue := setIndex batlvl 4
+      loraclient.sendMSG indexedValue
+      sleep --ms=60000
 
-  // while true:
-  //   print "range = $(loraclient.sendMSG "test") mm"
-  //   sleep --ms=1_000
-list-storage:
-  bucket := storage.Bucket.open --flash "storage-bucket"
-  try:
-    key  := "log"
-    value := bucket.get key
-    index := 0
-    while value != null:
-      bucket.remove key
-      key = key + "$(index)"
-      value = bucket.get key
-      print value
-      index++
-  finally:
-    bucket.close
+  sleep --ms=120000             // Keep the device working and send data during its awake time of 2 minutes
+  print "Entering deepsleep"
+  esp32.deep-sleep (Duration --s=900) // Enter deep-sleep for 15 minutes
 
 
-write-to-storage data -> bool:
-  bucket := storage.Bucket.open --flash "storage-bucket"
-  isWritten := false
-  try:
-    key := "log"
-    value := bucket.get key
-    index := 0
-    while value == null:
-      key = key + "$(index)"
-      value = bucket.get key
-      index++
-      
-    // print "existing = $value"
-    // if value is int: value = value + 1
-    // else: value = 0
-    bucket[key] = data
-    isWritten = true
-  finally:
-    bucket.close
-    return isWritten
-  
-delete-from-storage key -> bool:
-  isDeleted := false
-  bucket := storage.Bucket.open --flash "storage-bucket"
-
-  try:
-    bucket.remove key
-    // expect-throw "key not found": bucket[key]
-    isDeleted = true
-  finally:
-    bucket.close
-    return isDeleted
-
-
-delete-all-storage -> bool:
-  bucket := storage.Bucket.open --flash "storage-bucket"
-  isDeleted := false
-  try:
-    key  := "log"
-    value := bucket.get key
-    index := 0
-    while value != null:
-      bucket.remove key
-      key = key + "$(index)"
-      value = bucket.get key
-      index++
-    isDeleted = true
-  finally:
-    bucket.close
-    return isDeleted
+// Prepends a specific index to a value
+setIndex value/any index/int -> int:
+  strValue := "$(value)"  // 'casting' to a string to find out the length of the value
+  indexedValue := value + (index * (pow 10 (strValue.size)))
+  return indexedValue.to-int
+     

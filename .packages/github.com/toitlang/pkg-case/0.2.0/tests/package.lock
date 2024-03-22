@@ -1,5 +1,0 @@
-prefixes:
-  case: ..
-packages:
-  ..:
-    path: ..

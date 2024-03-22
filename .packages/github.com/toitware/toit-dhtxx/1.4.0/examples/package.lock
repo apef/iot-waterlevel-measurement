@@ -1,5 +1,0 @@
-prefixes:
-  dhtxx: ..
-packages:
-  ..:
-    path: ..

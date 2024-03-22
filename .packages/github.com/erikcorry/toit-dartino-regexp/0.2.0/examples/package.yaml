@@ -1,6 +1,0 @@
-dependencies:
-  case:
-    url: github.com/toitlang/pkg-case
-    version: ^0.2.0
-  regexp:
-    path: ..

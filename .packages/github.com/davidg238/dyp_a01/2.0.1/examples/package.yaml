@@ -1,6 +1,0 @@
-dependencies:
-  dyp_a01:
-    path: ..
-  ntp:
-    url: github.com/toitlang/pkg-ntp
-    version: ^1.0.0

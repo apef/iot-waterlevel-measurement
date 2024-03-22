@@ -5,50 +5,50 @@ import dyp_a01 show DYP_A01
 
 // ------------------------------------------------------------------
 
-interface RangeSensorService:
+interface DistanceSensorService:
   static SELECTOR ::= services.ServiceSelector
-      --uuid="dd9e5fd1-a5e9-464e-b2ef-92bf15ea02ca"
+      --uuid="dd9e5fd1-a5e9-464e-b2ef-15ea02ca92bf"
       --major=1
       --minor=0
 
-  range -> int
-  static RANGE-INDEX ::= 0
+  distance -> int
+  static distance-INDEX ::= 0
 
 // ------------------------------------------------------------------
 
-class RangeSensorServiceClient extends services.ServiceClient implements RangeSensorService:
-  static SELECTOR ::= RangeSensorService.SELECTOR
+class DistanceSensorServiceClient extends services.ServiceClient implements DistanceSensorService:
+  static SELECTOR ::= DistanceSensorService.SELECTOR
   constructor selector/services.ServiceSelector=SELECTOR:
     assert: selector.matches SELECTOR
     super selector
 
-  range -> int:
-    return invoke_ RangeSensorService.RANGE-INDEX null
+  distance -> int:
+    return invoke_ DistanceSensorService.distance-INDEX null
 
 // ------------------------------------------------------------------
 
-class RangeSensorServiceProvider extends services.ServiceProvider
-    implements RangeSensorService services.ServiceHandler:
+class DistanceSensorServiceProvider extends services.ServiceProvider
+    implements DistanceSensorService services.ServiceHandler:
 
-  range-last_ := 0 // The last measured distance
+  distance-last_ := 0 // The last measured distance
 
   // The full distance from the devices location down to the limit. For example, if place on a bridge
   // it's the distance down to the seabed.
   referenceDistance := 0  
 
   constructor:
-    super "range-sensor" --major=1 --minor=0
-    provides RangeSensorService.SELECTOR --handler=this
+    super "distance-sensor" --major=1 --minor=0
+    provides DistanceSensorService.SELECTOR --handler=this
 
   handle index/int arguments/any --gid/int --client/int -> any:
-    if index == RangeSensorService.RANGE-INDEX: return range
+    if index == DistanceSensorService.distance-INDEX: return distance
     unreachable
 
-  range -> int:
-    if range-last_ == null:
+  distance -> int:
+    if distance-last_ == null:
       return -1
     else:
-      return range-last_
+      return distance-last_
 
   waterlevelCalc distance/int -> int:
     return referenceDistance - distance
@@ -59,6 +59,6 @@ class RangeSensorServiceProvider extends services.ServiceProvider
         --tx-pin=tx //not used
         --rx-pin=rx
     while true:
-      range-last_ = waterlevelCalc sensor.range
-      // print range-last_
+      distance-last_ = waterlevelCalc sensor.range
+      // print distance-last_
     sensor.off
