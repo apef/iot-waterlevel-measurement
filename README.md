@@ -12,11 +12,18 @@ By measuring the water level in storm drains, it would be possible to:
 
 ## Hardware
 ### Microcontroller (MCU)
-This project uses a Wireless Stick Lite V3 from Heltec, which has BLE/WiFi/LoRa integrated. 
+This project uses a DOIT ESP32 DEVKIT V1 board, which has Wi-Fi and Bluetooth intergrated.
 
 ### Sensors
+This project uses the folowing two sensors
 * Distance measuring: A02YYUW - Waterproof ultrasonic sensor
-* Battery level measuring: MAX17048 Fuel cell Gauge
+* Temperature and humidity measuring: DHT11
+
+### LoRaWAN
+This project uses a LoRaWAN Unit 868MHz from M5stack for LoRa connetion.
+
+### Battery
+This project uses a regular Power Bank for powering the components which connects trhough the microcontrollers micro USB port. But it is posible to use for example a Lipo battery and measure its battery level though the GPIO32 pin on the ESP32 board, were there is a battery level measure implemented in our code for that pin.
 
 ### Wiring diagram
 ## Wireless Stick Lite V2
