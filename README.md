@@ -11,6 +11,10 @@ By measuring the water level in storm drains, it would be possible to:
 * Being able to see how the water level looks like on each day and storing it could provide useful data.
 
 ## Software
+### Requirements
+* Python 3.x
+* Jaguar (TOIT)
+<hr>
 ### TOIT Framework
 The TOIT framework allows for remote flashing an ESP32 device, this means that the device that will be installed inside of stormdrains do not have to be removed from its location in order to update it via a serial connection.
 
@@ -47,6 +51,16 @@ If the serial monitor displays that Jaguar is running correctly on the device, w
 Enter the command ``jag scan`` in your command terminal, this will scan for all currently running Jaguar devices on the same network. 
 
 If the scan does not return any found Jaguar devices, despite the device running correctly and you've ensured that you're on the correct network, then you can scan for the device manually using: ``jag scan *device-ip*``
+
+#### Python
+In this project we use a python script to log the uplinks that are recieved from LoRaWAN. It is therefore neccessary that python is installed prior to running the script. 
+
+You can follow this link to find the downloads for the python installation files: https://www.python.org/downloads/
+
+After python has been installed, you need to install some required libraries in order to run the script.
+
+1. Paho-mqtt. Install Paho-mqtt by using pip, open your commandline/terminal and issue this command: ``pip install paho-mqtt``. It might be possible that your pip installation is different, if the prior command does not work try: ```pip3 install paho-mqtt``.
+2. Mysql connector. Install the mysql connector by issuing this command in your commandline/terminal: ```pip install mysql.connector-python```alternativly ``pip3 install mysql.connector-python``
 
 ## Hardware
 ### Microcontroller (MCU)
