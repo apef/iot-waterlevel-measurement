@@ -118,9 +118,7 @@ def saveToDB(someJSON):
     frm_payload = uplink_message["frm_payload"];
     rssi = uplink_message["rx_metadata"][0]["rssi"];
     snr = uplink_message["rx_metadata"][0]["snr"];
-    data_rate = uplink_message["settings"]["data_rate"];
     frm_payload = base64.b64decode(frm_payload).hex()
-
 
     payload_dec = int(bin(int(frm_payload, 16)), 2) # Decoding the Hexadecimal payload into decmial
       
@@ -140,44 +138,28 @@ def saveToDB(someJSON):
   except Exception as err:
      print (err)  
 
-# MQTT event functions
-def on_connect(mqttc, obj, flags, rc):
-    print("\nConnect: rc = " + str(rc))
-
+# MQTT event function
 def on_message(mqttc, obj, msg):
     print("\nMessage: " + msg.topic + " " + str(msg.qos))
     parsedJSON = json.loads(msg.payload)
     saveToDB(parsedJSON)
 
-def on_subscribe(mqttc, obj, mid, granted_qos):
-    print("\nSubscribe: " + str(mid) + " " + str(granted_qos))
-
-# def on_log(level, string):
-#     print("\nLog: "+ string)
-#     logging_level = mqtt.LOGGING_LEVEL[level]
-#     logging.log(logging_level, string)
-
-
 print("Initializing the MQTT Client")
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
 
-print("Assigning callback functions.")
-mqttc.on_connect = on_connect
-mqttc.on_subscribe = on_subscribe
+print("Assigning callback functions")
 mqttc.on_message = on_message
-#mqttc.on_log = on_log		# Logging for debugging OK, waste
 
 print("Connecting..")
+
 # Setup authentication from settings above
 mqttc.username_pw_set(User, Password)
 
-
-# IMPORTANT - this enables the encryption of messages
+# Enabling encryption of the messaging.
 mqttc.tls_set()	# default certification authority of the system
 
 mqttc.connect(theRegion.lower() + ".cloud.thethings.network", 8883, 60)
-# mqttc.connect(connectString, 8883, 60)
-mqttc.subscribe("#", 0)	# all device uplinks
+mqttc.subscribe("#", 0)	# Subscribe to all device uplinks (all topics).
 
 try:    
   run = True
