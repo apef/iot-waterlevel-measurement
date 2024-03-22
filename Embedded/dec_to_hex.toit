@@ -19,8 +19,8 @@ dec_to_hex decVal:
 
   start := lst.size
   start--
-  for i := start; i > -1; i-=1:
-    retString += lst[i]
+  for i := start; i > -1; i-=1: // As the numbers are in reverse order, we go through the list backwards
+    retString += lst[i]         // Append each number into the string that shall be returned.
   return retString
 
 to_char value -> string:

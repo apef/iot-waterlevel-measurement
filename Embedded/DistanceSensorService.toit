@@ -1,7 +1,6 @@
 import system.services
 import dyp_a01 show DYP_A01
 
-
 // ------------------------------------------------------------------
 
 interface DistanceSensorService:
@@ -59,5 +58,4 @@ class DistanceSensorServiceProvider extends services.ServiceProvider
         --rx-pin=rx
     while true:
       distance-last_ = waterlevelCalc sensor.range
-      // print distance-last_
     sensor.off

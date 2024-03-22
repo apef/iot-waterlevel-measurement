@@ -1,12 +1,10 @@
 import gpio show Pin
 import system.services
-// import dyp_a01 show DYP_A01
 import reader show BufferedReader
 import writer show Writer
 import uart show Port
 import dartino_regexp.regexp show RegExp
 import .dec_to_hex
-import math show pow
 
 // ------------------------------------------------------------------
 
@@ -35,7 +33,6 @@ class LoraConnectionServiceClient extends services.ServiceClient implements Lora
 class LoraConnectionServiceProvider extends services.ServiceProvider
     implements LoraConnectionService services.ServiceHandler:
 
-  range-last_ := 0
   loraModule := null
   isconnected := false
   device_eui := ""
@@ -45,29 +42,27 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
   freq_mask := "0001"     
   RxWindow := "869525000"
   spreadFactor := "9"
-  ul_dl_mode := "2"
   
   constructor:
-    super "range-sensor" --major=1 --minor=0
+    super "lora-module" --major=1 --minor=0
     provides LoraConnectionService.SELECTOR --handler=this
 
   handle index/int arguments/any --gid/int --client/int -> any:
     if index == LoraConnectionService.sendMSG-INDEX: return sendMSG arguments
     unreachable
   
-
   // Sends data through the LoRaWAN connection.
   sendMSG data/int -> bool:
     print "Got Request to send: $(data)"
-    confirm := 1   // Confirm transmission of data
-    nbtrials := 8  // Amount of retries before abandoning the transmission
+    confirm := 1                    // Confirm transmission of data
+    nbtrials := 8                   // Amount of retries before abandoning the transmission
     encodedData := dec_to_hex data  // Encodes the data into hexadecimal
     strData := "$(encodedData)"     // Cast the encoded bytes into a string (it is then able to retrieve the length)
     command := "AT+DTRX=" + "$(confirm)" + "," + "$(nbtrials)" + "," + "$(strData.size)" + "," + strData + "\r\n"
     
     response := waitMSG command 10000
 
-    re := RegExp "\nOK\n"                // Find if the pattern which confirms a successful transmission was recieved
+    re := RegExp "\nOK\n"           // Find if the pattern which confirms a successful transmission was recieved
     check := re.has_matching response
 
     if check:
@@ -78,35 +73,32 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
   run tx_pin/int rx_pin/int device_eui_/string app_eui_/string app_key_/string -> none:
     tx := Pin tx_pin
     rx := Pin rx_pin
-    loraModule = Port --rx=rx --baud-rate=115200 --tx=tx
+    loraModule = Port --rx=rx --baud-rate=115200 --tx=tx    // Assign the serial port connection
 
     device_eui = device_eui_
     app_eui = app_eui_
     app_key = app_key_
 
-    task:: checkDeviceConnect
-    
+    task:: checkDeviceConnect  // Start checking that the module is connected in a separate task
+                               // as to not block the rest of the code.
     while not isconnected:
       sleep --ms=100
        
     writer := Writer loraModule
   
     writer.write "AT+CJOINMODE=0\r\n"
-    sleep --ms=50
+    sleep --ms=50             // Sleeps to ensure that the configuration commands are set
     writer.write "AT+CDEVEUI=" + device-eui + "\r\n"
     sleep --ms=50
     writer.write "AT+CAPPEUI=" + app_eui + "\r\n"
     sleep --ms=50
     writer.write "AT+CAPPKEY=" + app_key + "\r\n"
-    // writer.write "AT+CULDLMODE=" + ul_dl_mode + "\r\n"
     sleep --ms=50
 
-
+    writer.write "AT+CSAVE\r\n"           // Save the configuration
     sleep --ms=1000
-    writer.write "AT+CSAVE\r\n"
-    sleep --ms=10000
 
-    writer.write "AT+CJOIN=1,0,60,8\r\n"
+    writer.write "AT+CJOIN=1,0,60,8\r\n"  // Try to join the network
 
   checkDeviceConnect:
     response := ""
@@ -114,7 +106,7 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     check := false
     
     try:
-      response = waitMSG "AT+CGMI?\r\n" 5000
+      response = waitMSG "AT+CGMI?\r\n" 5000  // Ask the device for its name, an answer will show that it is connected
       sleep --ms=6000
   
       re := RegExp "\nOK\n"
@@ -133,6 +125,7 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     writer := Writer loraModule
     writer.write command
 
+    // Start a timer when awaiting the response, cancel if the timer runs out
     while true:
       if (timeStart.to-now.in-ms < waitTime):
         line := reader.read-line
@@ -143,21 +136,6 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
         
         if line == "FAIL":
           break
-  
-      if (timeStart.to-now.in-ms > waitTime):
+      else:
         break
     return response
-  
-  
-  readLora:
-    writer := Writer loraModule
-    reader := BufferedReader loraModule
-  
-    task::
-        while true:
-            sleep --ms=30   
-            sData := reader.read-line
-            if not sData:
-                break
-            loraData := sData.to_string
-            print "$loraData"

@@ -1,4 +1,3 @@
-// import gpio show Pin
 import system.services
 import dyp_a01 show DYP_A01
 import dhtxx
