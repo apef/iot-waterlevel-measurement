@@ -1,0 +1,8 @@
+prefixes:
+  case: pkg-case
+packages:
+  pkg-case:
+    url: github.com/toitlang/pkg-case
+    name: case
+    version: 0.2.0
+    hash: 62898a912a1c8beffd007ce8ccc89ff685f43f7a
