@@ -47,7 +47,7 @@ class EnvironmentSensorServiceProvider extends services.ServiceProvider
     super "temp-sensor" --major=1 --minor=0
     provides EnvironmentSensorService.SELECTOR --handler=this
   
-  // The handle function 
+  // The handle function uses the index values to return the corresponding functionality that was requested
   handle index/int arguments/any --gid/int --client/int -> any:
     if index == EnvironmentSensorService.temp-INDEX: return temp
     if index == EnvironmentSensorService.humidity-INDEX: return humidity
@@ -55,7 +55,7 @@ class EnvironmentSensorServiceProvider extends services.ServiceProvider
 
   temp -> float:
     if temp-last_ == null:
-      return -1.0
+      return -1.0 // If something went wrong, return -1
     else:
       return temp-last_
 

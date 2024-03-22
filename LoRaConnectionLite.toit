@@ -42,11 +42,11 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
   app_eui := ""
   app_key := ""
   join_eui := "0000000000000000"
-  freq_mask := "0001"
+  freq_mask := "0001"     
   RxWindow := "869525000"
   spreadFactor := "9"
   ul_dl_mode := "2"
-
+  
   constructor:
     super "range-sensor" --major=1 --minor=0
     provides LoraConnectionService.SELECTOR --handler=this
@@ -55,17 +55,19 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     if index == LoraConnectionService.sendMSG-INDEX: return sendMSG arguments
     unreachable
   
+
+  // Sends data through the LoRaWAN connection.
   sendMSG data/int -> bool:
     print "Got Request to send: $(data)"
-    confirm := 1
-    nbtrials := 8
-    // if 
-    encodedData := dec_to_hex data
-    strData := "$(encodedData)"
+    confirm := 1   // Confirm transmission of data
+    nbtrials := 8  // Amount of retries before abandoning the transmission
+    encodedData := dec_to_hex data  // Encodes the data into hexadecimal
+    strData := "$(encodedData)"     // Cast the encoded bytes into a string (it is then able to retrieve the length)
     command := "AT+DTRX=" + "$(confirm)" + "," + "$(nbtrials)" + "," + "$(strData.size)" + "," + strData + "\r\n"
-    print "Sending command: $(command)"
+    
     response := waitMSG command 10000
-    re := RegExp "\nOK\n"
+
+    re := RegExp "\nOK\n"                // Find if the pattern which confirms a successful transmission was recieved
     check := re.has_matching response
 
     if check:
@@ -86,9 +88,7 @@ class LoraConnectionServiceProvider extends services.ServiceProvider
     
     while not isconnected:
       sleep --ms=100
-    
-    // task:: readLora 
-      
+       
     writer := Writer loraModule
   
     writer.write "AT+CJOINMODE=0\r\n"
