@@ -34,6 +34,35 @@ The TOIT framework allows for remote flashing an ESP32 device, this means that t
 
 ### Software setup
 #### TOIT
-1. Install TOIT by downloading it from https://toitlang.org/
-2. Connect the Microcontroller via USB and enter the command "jag flash" in your terminal/commandline
-3. Insert the name of your WiFi-network and the password. The device will then be connected to WiFi and you can then upload TOIT applications wirelessly.
+1. Install Jaguar (the TOIT application for ESP32 devices) by choosing the operating system you are planning to use.
+    <details>
+      <summary>Windows</summary>
+    
+      If you are using a Windows operating system, you can download TOIT by running this command: ``winget install --id=Toit.Jaguar -e ``
+    </details>
+
+    <details>
+      <summary>OSX (Mac)</summary>
+    
+      If you are using an OSX operating system, you can download TOIT by running this command: ``brew install toitlang/toit/jag``
+    </details>
+
+    <details>
+      <summary>Linux</summary>
+    
+      If you are using a Linux operating system, you can download TOIT by running this command: ``yay install jaguar-bin``
+    </details>
+
+2. After installing Jaguar run the setup command: ``jag setup``
+3. Connect the Microcontroller via USB and enter the command ``jag flash`` in your terminal/commandline
+4. Insert the name of your WiFi-network and the password. The device will then be connected to WiFi and you can then upload TOIT applications wirelessly.
+
+When the installation has been successful, it is then possible to monitor the device by using this command: ``jag monitor``
+In the output from the device, it is possible to retrieve the IP address of the device. Ensure that you are on the same network as the device.
+
+If the serial monitor displays that Jaguar is running correctly on the device, which can be seen by the output of its hosted website link, then you should scan for the device. 
+
+Enter the command ``jag scan`` in your command terminal, this will scan for all currently running Jaguar devices on the same network. 
+
+If the scan does not return any found Jaguar devices, despite the device running correctly and you've ensured that you're on the correct network, then you can scan for the device manually using: ``jag scan *device-ip*``
+
