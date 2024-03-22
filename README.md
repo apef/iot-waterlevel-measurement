@@ -26,13 +26,7 @@ This project uses a LoRaWAN Unit 868MHz from M5stack for LoRa connetion.
 This project uses a regular Power Bank for powering the components which connects trhough the microcontrollers micro USB port. But it is posible to use for example a Lipo battery and measure its battery level though the GPIO32 pin on the ESP32 board, were there is a battery level measure implemented in our code for that pin.
 
 ### Wiring diagram
-## Wireless Stick Lite V2
-<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_schem.png?raw=true" width="500">
-<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_bb.png?raw=true" width="600">
-
-## Wireless Stick Lite V3
-<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_HTITwslV3_schem.png?raw=true" width="500">
-<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/Waterlevel_HTITwslV3_bb.png?raw=true" width="400">
+<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/Waterlevel_improved_bb.png?raw=true" width="400"> <img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/Waterlevel_improved_schem.png?raw=true" width="600">
 
 ## Software
 ### TOIT Framework
