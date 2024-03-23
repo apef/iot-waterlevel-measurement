@@ -26,19 +26,16 @@ try:
         mysql_socket_path = sys.argv[5]
 
         userChoice = ""
-        connectString = ""
         while userChoice != 'y' and userChoice != 'n':
             userChoice = input("Connect to TTN (The Things Network) Network? (y/n) ").lower()
             if userChoice == 'y':
                 print("Yes")
         
         if userChoice == "y":
-            region = input("Please input which region you are based in. ")
-            connectString = region.lower()
+            region = input("Please input which region you are based in. ")  # The region the user is using
         
         connectIP = input("Enter the address to the MQTT connection. ")
         connectPort = int(input("Enter the port for the connection. "))
-        connectString += connectIP
 
         mqttUsername = input("Enter MQTT-connection username. ")
         mqttPassword = input("Enter MQTT-connection password. ")
@@ -52,8 +49,7 @@ cnx = mysql.connector.connect(user = mysql_username,
                               unix_socket = mysql_socket_path,
                               )
 cursor = cnx.cursor()
-theRegion = region	     # The region the user is using
-
+	    
 # Credentials for the MQTT Connection
 User = mqttUsername      
 Password = mqttPassword
@@ -158,7 +154,7 @@ mqttc.username_pw_set(User, Password)
 # Enabling encryption of the messaging.
 mqttc.tls_set()	# default certification authority of the system
 
-mqttc.connect(theRegion.lower() + ".cloud.thethings.network", 8883, 60)
+mqttc.connect(region + connectIP,  connectPort, 60)
 mqttc.subscribe("#", 0)	# Subscribe to all device uplinks (all topics).
 
 try:    
