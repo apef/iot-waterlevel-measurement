@@ -14,6 +14,7 @@ By measuring the water level in storm drains, it would be possible to:
 ### Requirements
 * Python 3.x
 * Jaguar (TOIT)
+* A MySQL DBMS (Database Management System)
 <hr>
 
 ### TOIT Framework
