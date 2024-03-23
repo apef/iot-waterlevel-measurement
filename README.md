@@ -11,6 +11,11 @@ By measuring the water level in storm drains, it would be possible to:
 * Being able to see how the water level looks like on each day and storing it could provide useful data.
 
 ## Software
+### Requirements
+* Python 3.x
+* Jaguar (TOIT)
+<hr>
+
 ### TOIT Framework
 The TOIT framework allows for remote flashing an ESP32 device, this means that the device that will be installed inside of stormdrains do not have to be removed from its location in order to update it via a serial connection.
 
@@ -48,6 +53,16 @@ Enter the command ``jag scan`` in your command terminal, this will scan for all 
 
 If the scan does not return any found Jaguar devices, despite the device running correctly and you've ensured that you're on the correct network, then you can scan for the device manually using: ``jag scan *device-ip*``
 
+#### Python
+In this project we use a python script to log the uplinks that are recieved from LoRaWAN. It is therefore neccessary that python is installed prior to running the script. 
+
+You can follow this link to find the downloads for the python installation files: https://www.python.org/downloads/
+
+After python has been installed, you need to install some required libraries in order to run the script.
+
+1. Paho-mqtt. Install Paho-mqtt by using pip, open your commandline/terminal and issue this command: ``pip install paho-mqtt``. It might be possible that your pip installation is different, if the prior command does not work try: ```pip3 install paho-mqtt``.
+2. Mysql connector. Install the mysql connector by issuing this command in your commandline/terminal: ```pip install mysql.connector-python```alternativly ``pip3 install mysql.connector-python``
+
 ## Hardware
 ### Microcontroller (MCU)
 This project uses a DOIT ESP32 DEVKIT V1 board, which has Wi-Fi and Bluetooth intergrated.
@@ -64,7 +79,7 @@ This project uses a LoRaWAN Unit 868MHz from M5stack for LoRa connetion.
 This project uses a regular Power Bank for powering the components which connects trhough the microcontrollers micro USB port. But it is posible to use for example a Lipo battery and measure its battery level though the GPIO35 pin on the ESP32 board, were there is a battery level measure implemented in our code for that pin.
 
 ### Wiring diagrams
-<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/Waterlevel_improved_bb.png?raw=true" width="400"> <img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/Waterlevel_improved_schem.png?raw=true" width="600">
+<img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/Waterlevel_improved_v2_bb.png?raw=true" width="400"> <img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/Waterlevel_improved_schem.png?raw=true" width="600">
 
 ### Battery measuring diagrams
 These images below is an example on how we would measure the battery level from an Lipo battery to an analog pin on the ESP32 board. This was not used since a 3.7 volt battery was not enough to power all of our components in our project, it was therefore left out from the main images above.
