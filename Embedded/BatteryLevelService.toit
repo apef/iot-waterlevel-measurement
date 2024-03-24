@@ -30,7 +30,7 @@ class BatteryLevelServiceClient extends services.ServiceClient implements Batter
 class BatteryLevelServiceProvider extends services.ServiceProvider
     implements BatteryLevelService services.ServiceHandler:
 
-  batlvl-last_ := 0 // The last measured battery level distance
+  batlvl-last_ := 0 // The last measured battery level
 
   constructor:
     super "batlvl-sensor" --major=1 --minor=0
