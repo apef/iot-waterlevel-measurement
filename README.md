@@ -86,3 +86,32 @@ This project uses a regular Power Bank for powering the components which connect
 These images below is an example on how we would measure the battery level from an Lipo battery to an analog pin on the ESP32 board. This was not used since a 3.7 volt battery was not enough to power all of our components in our project, it was therefore left out from the main images above.
 
 <img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/batterylevel_bb.png?raw=true" width="600"> <img src="https://github.com/apef/iot-waterlevel-measurement/blob/main/img/batterylevel_schem.png?raw=true" width="400">
+
+
+## How to run
+Clone the repository to a desired location. (example using the terminal in a desired location: ``git clone https://github.com/apef/iot-waterlevel-measurement.git``)
+### IoT Device
+1. If the hardware is assembled according to the hardware setup, then proceed with connecting the microcontroller to your system with USB.
+2. Enter the folder "Embedded" within the repository you cloned down locally and open up a terminal within it.
+3. If you want to only test the device with running the code temporarily (which will be wiped when the device enters deep-sleep, or power source is removed) simply run issue the command: ``jag run main.toit``
+4. If you want to install the application onto your device, then issue this command in the terminal instead: ``jag container install <name> main.toit`` where "name" is what you want to name the application.
+5. If the device is running the application (either temporarily or as an installed container) it is possible, if connected to your system with USB, to monitor the device with: ``jag monitor`` however, if the code is running temporarily and is not installed, then it is best to issue the monitor command prior to running the code. It is possible to monitor while the device is operating the code temporarily with ``jag monitor --attach`` however it may sometimes restart the device.
+
+It is not neccessary for the device to be inserted into an USB port when doing the above setup. The code is able to be installed and or run temporarily on the device by transmitting it wirelessly. The downside is that monitoring the device (except the output that is recieved in your LoRaWAN platform) is only possible through the USB connection. Otherwise, if the software setup was done correctly and the device was given the credentials to an interne connection (WiFi) then simply connect to the same network and issue the commands above. As long as the device has a power source it will connect to the internet connection and be ready for receiving code.
+
+### Python script
+1. Enter the folder "Database" within the repository that you cloned down locally and open up a terminal within it.
+2. Run the python script with issuing the command ``python MQTT_DB_Connector.py <database-name> <mysql-username> <mysql-password> <mysql-host-address> <file address to mysql unix-socket``.
+    - Database-name is the name of the database, if it does not exist the python script will create a new database with the given name.
+    - MySQL username is the username that is set for the database user that shall connect to the database. This means that the user must exist prior to running the script. Example of this would be the default "root" user, if not changed.
+    - MySQL password is the password for the user specified above, an example of this would be the default "root" password if it has not been changed for the root user.
+    - MySQL host address is the IP address which the MySQL instance is hosted upon, for example if run locally it could be "localhost"/"127.0.0.1 as default.
+    - MySQL unix-socket is the file address (the string that specifies where the file exists on your system) to the socket in which the communication to the MySQL server is going to be run through. As the authors of this project used the software "MAMP" their unix-socket address by default was: "/Applications/MAMP/tmp/mysql/mysql.sock"
+3. If the command was entered with correct amount of arguments you should be presented with prompt asking if you're going to connect to The Things network (TTN). Enter Yes or No.
+4. If Yes, then you need to specify which region you are going to connect from, read the documentation from The Things Network: https://www.thethingsindustries.com/docs/reference/ttn/addresses/
+5. Specify the host address that you are going to connect to, however you need to add "." at the beginning of the address if connecting to TTN as per the example: https://eu1.cloud.thethings.network/.
+6. Enter the port that the connection you are going to connect to uses.
+7. Enter the username for the MQTT server you are connecting to, this means the 'address' to the server. An example from TTN would be: mymqttserver@ttn
+8. Enter the password for the MQTT server you are connecting to.
+
+If the above steps were done without issue, the python script should now be listening to the incoming MQTT messages.
