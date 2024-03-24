@@ -13,7 +13,7 @@ main:
   sensor_tx := 0 // the device will stop responding when set to the 'correct' pin (1 in our case), however it is not needed and is therefore set to 0. 
   sensor_rx := 3
   adc_pin := 32
-  bat_pin := 34
+  bat_pin := 35
   referenceDistance := 4000 // Must be set to the correct reference distance, for valid measurments.
 
   //-------Device OTAA-----------

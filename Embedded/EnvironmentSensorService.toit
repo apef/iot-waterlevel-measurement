@@ -4,8 +4,6 @@ import dhtxx
 import gpio
 import dartino_regexp.regexp show RegExp
 
-
-// ------------------------------------------------------------------
 // Interface for the service, specifies for example which ID the service has (which is then used to find and install the service)
 interface EnvironmentSensorService:
   static SELECTOR ::= services.ServiceSelector
@@ -19,7 +17,6 @@ interface EnvironmentSensorService:
   humidity -> float
   static humidity-INDEX ::= 1
 
-// ------------------------------------------------------------------
 // The service client is used to handle the requests that are given to the serviceprovider. As a mediator.
 class EnvironmentSensorServiceClient extends services.ServiceClient implements EnvironmentSensorService:
   static SELECTOR ::= EnvironmentSensorService.SELECTOR
@@ -33,7 +30,6 @@ class EnvironmentSensorServiceClient extends services.ServiceClient implements E
   humidity -> float:
     return invoke_ EnvironmentSensorService.humidity-INDEX null
 
-// ------------------------------------------------------------------
 // The service provider implements the functions defined in the interface, and returns their values
 // when prompted by the client.
 class EnvironmentSensorServiceProvider extends services.ServiceProvider

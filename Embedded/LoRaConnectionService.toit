@@ -6,8 +6,6 @@ import uart show Port
 import dartino_regexp.regexp show RegExp
 import .dec_to_hex
 
-// ------------------------------------------------------------------
-
 interface LoraConnectionService:
   static SELECTOR ::= services.ServiceSelector
       --uuid="36989d64-baad-4f06-90A8-fcf796a287c1"
@@ -17,8 +15,6 @@ interface LoraConnectionService:
   sendMSG data/int -> bool
   static sendMSG-INDEX ::= 0
 
-// ------------------------------------------------------------------
-
 class LoraConnectionServiceClient extends services.ServiceClient implements LoraConnectionService:
   static SELECTOR ::= LoraConnectionService.SELECTOR
   constructor selector/services.ServiceSelector=SELECTOR:
@@ -27,8 +23,6 @@ class LoraConnectionServiceClient extends services.ServiceClient implements Lora
 
   sendMSG data/int -> bool:
     return invoke_ LoraConnectionService.sendMSG-INDEX data
-
-// ------------------------------------------------------------------
 
 class LoraConnectionServiceProvider extends services.ServiceProvider
     implements LoraConnectionService services.ServiceHandler:

@@ -1,8 +1,6 @@
 import system.services
 import dyp_a01 show DYP_A01
 
-// ------------------------------------------------------------------
-
 interface DistanceSensorService:
   static SELECTOR ::= services.ServiceSelector
       --uuid="dd9e5fd1-a5e9-464e-b2ef-15ea02ca92bf"
@@ -12,8 +10,6 @@ interface DistanceSensorService:
   distance -> int
   static distance-INDEX ::= 0
 
-// ------------------------------------------------------------------
-
 class DistanceSensorServiceClient extends services.ServiceClient implements DistanceSensorService:
   static SELECTOR ::= DistanceSensorService.SELECTOR
   constructor selector/services.ServiceSelector=SELECTOR:
@@ -22,8 +18,6 @@ class DistanceSensorServiceClient extends services.ServiceClient implements Dist
 
   distance -> int:
     return invoke_ DistanceSensorService.distance-INDEX null
-
-// ------------------------------------------------------------------
 
 class DistanceSensorServiceProvider extends services.ServiceProvider
     implements DistanceSensorService services.ServiceHandler:
